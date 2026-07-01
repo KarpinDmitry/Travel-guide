@@ -1,5 +1,11 @@
 # Travel Guide
 
+**Автор:** Карпин Дмитрий
+
+**Тестовое задание на Java SE / Spring**
+
+## Описание проекта
+
 REST API путеводителя по городу. Позволяет просматривать достопримечательности в радиусе от пользователя, оставлять отзывы и оценки.
 
 ## Архитектура
@@ -24,18 +30,47 @@ common-dto          — общие DTO и Feign-клиент (библиотек
 - Docker Compose
 - JUnit 5, Mockito, Testcontainers
 
+## Подготовительные действия
+
+Для работы проекта необходимо установить:
+
+- [JDK 21](https://adoptium.net/)
+- [Apache Maven 3.9+](https://maven.apache.org/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+## Информация о доступах
+
+| Сервис | Параметр | Значение |
+|--------|----------|----------|
+| PostgreSQL (attractions_db) | host | `localhost:5432` |
+| | user | `user` |
+| | password | `password` |
+| | database | `attractions_db` |
+| PostgreSQL (reviews_db) | host | `localhost:5433` |
+| | user | `user` |
+| | password | `password` |
+| | database | `reviews_db` |
+| Eureka Dashboard | url | http://localhost:8761 |
+| attractions-service | url | http://localhost:8082 |
+| reviews-service | url | http://localhost:8081 |
+
 ## Запуск
 
-**Требования:** Docker, Docker Compose
+1. Собрать проект:
 
 ```bash
 mvn package -DskipTests
+```
+
+2. Запустить все сервисы через Docker Compose:
+
+```bash
 docker-compose up --build
 ```
 
-Eureka Dashboard: http://localhost:8761
+При первом запуске Flyway автоматически создаёт схему БД в обоих сервисах.
 
-> При первом запуске Flyway автоматически создаёт схему БД в обоих сервисах.
+3. Проверить, что все сервисы зарегистрированы в Eureka: http://localhost:8761
 
 ## API
 
