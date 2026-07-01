@@ -10,6 +10,7 @@ import ru.karpin.attraction.dto.ResponseAttractionDto;
 import ru.karpin.attraction.dto.UpdateAttractionDto;
 import ru.karpin.attraction.entity.Attraction;
 import ru.karpin.attraction.entity.AttractionCategory;
+import ru.karpin.attraction.entity.AttractionSort;
 import ru.karpin.attraction.exception.EntityNotFoundException;
 import ru.karpin.attraction.repository.AttractionRepository;
 
@@ -101,12 +102,24 @@ class AttractionServiceTest {
     }
 
     @Test
-    void findNearby_shouldReturnDtoList() {
+    void findNearby_shouldReturnDtoList_sortedByDistance() {
         List<Attraction> attractions = List.of(buildAttraction());
-        when(attractionRepository.findNearby(59.9, 30.3, 5.0, null, null, 10))
+        when(attractionRepository.findNearbyOrderByDistance(59.9, 30.3, 5.0, null, null, 10))
                 .thenReturn(attractions);
 
-        List<ResponseAttractionDto> result = attractionService.findNearby(59.9, 30.3, 5.0, null, null, 10);
+        List<ResponseAttractionDto> result = attractionService.findNearby(59.9, 30.3, 5.0, null, null, 10, AttractionSort.DISTANCE);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).name()).isEqualTo("Эрмитаж");
+    }
+
+    @Test
+    void findNearby_shouldReturnDtoList_sortedByRating() {
+        List<Attraction> attractions = List.of(buildAttraction());
+        when(attractionRepository.findNearbyOrderByRating(59.9, 30.3, 5.0, null, null, 10))
+                .thenReturn(attractions);
+
+        List<ResponseAttractionDto> result = attractionService.findNearby(59.9, 30.3, 5.0, null, null, 10, AttractionSort.RATING);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).name()).isEqualTo("Эрмитаж");
@@ -115,11 +128,11 @@ class AttractionServiceTest {
     @Test
     void findNearby_shouldPassCategoryAndRating() {
         List<Attraction> attractions = List.of(buildAttraction());
-        when(attractionRepository.findNearby(59.9, 30.3, 5.0, "MUSEUM", 4.0f, 5))
+        when(attractionRepository.findNearbyOrderByDistance(59.9, 30.3, 5.0, "MUSEUM", 4.0f, 5))
                 .thenReturn(attractions);
 
         List<ResponseAttractionDto> result = attractionService.findNearby(
-                59.9, 30.3, 5.0, AttractionCategory.MUSEUM, 4.0f, 5);
+                59.9, 30.3, 5.0, AttractionCategory.MUSEUM, 4.0f, 5, AttractionSort.DISTANCE);
 
         assertThat(result).hasSize(1);
     }

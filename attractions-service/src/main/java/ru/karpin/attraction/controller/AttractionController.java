@@ -13,8 +13,9 @@ import ru.karpin.attraction.dto.CreateAttractionDto;
 import ru.karpin.attraction.dto.ResponseAttractionDto;
 import ru.karpin.attraction.dto.UpdateAttractionDto;
 import ru.karpin.attraction.entity.AttractionCategory;
+import ru.karpin.attraction.entity.AttractionSort;
 import ru.karpin.attraction.service.AttractionService;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -55,8 +56,15 @@ public class AttractionController {
                                                   @RequestParam @Positive double radius,
                                                   @RequestParam(required = false) AttractionCategory category,
                                                   @RequestParam(required = false) Float minRating,
-                                                  @RequestParam(required = false, defaultValue = "10") Integer limit){
+                                                  @RequestParam(required = false, defaultValue = "10") Integer limit,
+                                                  @RequestParam(required = false, defaultValue = "DISTANCE") AttractionSort sort){
         log.info("GET latitude: {}, longitude: {}, radius: {}", latitude, longitude, radius);
-        return attractionService.findNearby(latitude, longitude, radius, category, minRating, limit);
+        return attractionService.findNearby(latitude, longitude, radius, category, minRating, limit, sort);
+    }
+
+    @PatchMapping("/{id}/rating")
+    public void updateAverageRating(@PathVariable("id") Long attractionId, @RequestParam BigDecimal averageRating) {
+        log.info("PATCH /attraction/{}/rating = {}", attractionId, averageRating);
+        attractionService.updateAverageRating(attractionId, averageRating);
     }
 }

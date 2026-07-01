@@ -13,10 +13,12 @@ import ru.karpin.attraction.dto.ResponseAttractionDto;
 import ru.karpin.attraction.dto.UpdateAttractionDto;
 import ru.karpin.attraction.entity.Attraction;
 import ru.karpin.attraction.entity.AttractionCategory;
+import ru.karpin.attraction.entity.AttractionSort;
 import ru.karpin.attraction.exception.EntityNotFoundException;
 import ru.karpin.attraction.mapper.AttractionMapper;
 import ru.karpin.attraction.repository.AttractionRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -50,15 +52,25 @@ public class AttractionService {
         return AttractionMapper.toResponseAttractionDto(attraction);
     }
 
+    @Transactional(readOnly = true)
     public List<ResponseAttractionDto> findNearby(@NotNull @DecimalMin("-90.0") @DecimalMax("90.0") Double latitude,
                                                   @NotNull @DecimalMin("-180.0") @DecimalMax("180.0") Double longitude,
                                                   @NotNull Double radius, AttractionCategory category,
-                                                  Float minRating, Integer limit){
-        List<Attraction> attractionList = attractionRepository
-                .findNearby(latitude, longitude, radius, category != null ? category.name() : null, minRating, limit);
+                                                  Float minRating, Integer limit, AttractionSort sort){
+        String cat = category != null ? category.name() : null;
+        List<Attraction> attractionList = sort == AttractionSort.RATING
+                ? attractionRepository.findNearbyOrderByRating(latitude, longitude, radius, cat, minRating, limit)
+                : attractionRepository.findNearbyOrderByDistance(latitude, longitude, radius, cat, minRating, limit);
 
         return attractionList.stream()
                 .map(AttractionMapper::toResponseAttractionDto)
                 .toList();
+    }
+
+    public void updateAverageRating(Long attractionId, BigDecimal averageRating){
+        Attraction attraction = attractionRepository.findById(attractionId)
+                .orElseThrow(() -> new EntityNotFoundException("Attraction with id " + attractionId + " not found"));
+
+        attraction.setAverageRating(averageRating);
     }
 }
